@@ -53,6 +53,7 @@ module.exports = {
 
 
 function incrementLikes(req, res){
+
       Models.Image.findOne({ filename: { $regex: req.params.image_id }},
         function(err, image) {
           if (!err && image) {
@@ -93,7 +94,7 @@ function saveImage(req, res){
          imgUrl = '';
 
 
-    for(let i = 0; i < 6; i += 1) {
+    for(var i = 0; i < 6; i += 1) {
          imgUrl += possible.charAt(Math.floor(Math.random() * possible.length));
     }
 
