@@ -1,11 +1,8 @@
 var models = require('../models');
 
 module.exports = {
-    popular: function(callback) {
-        models.Image.find({}, {}, { limit: 9, sort: { likes: -1 }},
-            function(err, images) {
-                if (err) throw err;
-                callback(null, images);
-        });
+    popular: async function() {
+        var images = await models.Image.find({}, {}, { limit: 9, sort: { likes: -1 }});
+        return images;
     }
 };

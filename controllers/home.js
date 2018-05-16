@@ -2,19 +2,23 @@ var sidebar = require('../helpers/sidebar'),
    ImageModel = require('../models').Image;
 
 module.exports = {
-       index: function(req, res) {
+       index: async function(req, res){
 
-       		ImageModel.find({}, {}, { sort: { timestamp: -1 }},
-   			function(err, images) {
-   				if (err) { throw err; }
-   				var viewModel = getViewModel();
-   				viewModel.images = images;
-   				sidebar(viewModel, function(viewModel) {
-   					res.render('index', viewModel);
-				}); 
-   			});
+         	var images = await ImageModel.find({}, {}, { sort: { timestamp: -1 }, limit: 6});
+
+          var viewModel = getViewModel();
+          viewModel.images = images;
+
+          viewModel = await sidebar(viewModel);
+          console.log(viewModel);
+          res.render('index', viewModel);
+          //sidebar(viewModel, function(viewModel) {
+          //    res.render('index', viewModel);
+          //}); 
        }
 };
+
+
 
 
 function getViewModel(){

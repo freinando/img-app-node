@@ -7,11 +7,33 @@ var fs = require('fs'),
 var sidebar = require('../helpers/sidebar');
 
 module.exports = {
-       index: function(req, res) {
+       index: async function(req, res) {
               
               // find the image by searching the filename matching the url parameter:
-               Models.Image.findOne({ filename: { $regex: req.params.image_id }},
-                   function(err, image) {
+               var image = await Models.Image.findOne({ filename: { $regex: req.params.image_id }});
+               if(image){
+                  image.views = image.views + 1;
+                  var viewModel = getImageDetails();
+                  viewModel.image = image;
+                  image.save();
+
+                  var comments = await Models.Comment.find({ image_id: image._id},{},{ sort: {'timestamp': 1 }});
+                  viewModel.comments = comments;
+
+                  viewModel = await sidebar(viewModel);
+                  res.render('image', viewModel);
+                  //sidebar(viewModel, function(viewModel) {
+                     // render the page view with its viewModel:
+                  //      res.render('image', viewModel);
+                  //});
+
+               }
+               else {
+                     // if no image was found, simply go back to the homepage:
+                    res.redirect('/');
+               }
+
+                  /* function(err, image) {
                       if (err) { throw err; }
                       if (image) {
                        // if the image was found, increment its views counter
@@ -37,7 +59,7 @@ module.exports = {
                              // if no image was found, simply go back to the homepage:
                             res.redirect('/');
                        }
-                   });          
+                   });   */       
 
        },
        create: function(req, res) {
@@ -52,9 +74,19 @@ module.exports = {
 };
 
 
-function incrementLikes(req, res){
+async function incrementLikes(req, res){
 
-      Models.Image.findOne({ filename: { $regex: req.params.image_id }},
+      var image = await Models.Image.findOne({ filename: { $regex: req.params.image_id }});
+      if(image){
+          image.likes = image.likes + 1;
+          image.save(function(err) {
+              if (err) {
+                res.json(err);
+              } else {
+                res.json({ likes: image.likes });
+              } 
+          });
+      }/*
         function(err, image) {
           if (!err && image) {
             image.likes = image.likes + 1;
@@ -67,11 +99,24 @@ function incrementLikes(req, res){
             });
           } 
         }
-      );
+      );*/
 }
 
-function postComment(req, res){
-    Models.Image.findOne({ filename: { $regex: req.params.image_id }},
+async function postComment(req, res){
+    var image = await Models.Image.findOne({ filename: { $regex: req.params.image_id }});
+    if(image){
+        var newComment = new Models.Comment(req.body);
+        newComment.image_id = image._id;
+        newComment.gravatar = md5(newComment.email);
+
+        newComment.save(function(err, comment) {
+            if (err) { throw err; }
+            res.redirect('/images/' + image.uniqueId + '/#' + comment._id);
+        });
+    }else {
+        res.redirect('/');
+    } 
+    /*
       function(err, image) {
           if (!err && image) {
               var newComment = new Models.Comment(req.body);
@@ -85,11 +130,11 @@ function postComment(req, res){
             res.redirect('/');
           } 
       }
-    );
+    );*/
 
 }
 
-function saveImage(req, res){
+async function saveImage(req, res){
     var possible = 'abcdefghijklmnopqrstuvwxyz0123456789',
          imgUrl = '';
 
@@ -100,8 +145,8 @@ function saveImage(req, res){
 
     /* Start new code: */
      // search for an image with the same filename by performing a find:
-   Models.Image.find({ filename: imgUrl }, function(err, images) {
-   if (images.length> 0) {
+   var images = await Models.Image.find({ filename: imgUrl });
+   if (images.length > 0) {
          // if a matching image was found, try again (start over):
         saveImage();
    } else {
@@ -126,7 +171,7 @@ function saveImage(req, res){
 
                // and save the new Image
               newImg.save(function(err, image) {
-                        res.redirect('/images/' + image.uniqueId);
+                    res.redirect('/images/' + image.uniqueId);
               });
            });
          } else {
@@ -138,7 +183,6 @@ function saveImage(req, res){
 
 
     }
-  });
 }
 
 function getImageDetails(){

@@ -6,7 +6,7 @@ var express = require('express'),
 app.set('port', process.env.PORT || 3300);
 app.set('views', __dirname + '/views');
 app = config(app);
-mongoose.connect('mongodb://localhost/web_stuff');
+mongoose.connect('mongodb://localhost/imgPloadr');
    mongoose.connection.on('open', function() {
    console.log('Mongoose connected.');
 });

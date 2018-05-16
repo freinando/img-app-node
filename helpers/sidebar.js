@@ -1,12 +1,17 @@
 var Stats = require('./stats'),
    Images = require('./images'),
-   Comments = require('./comments'),
-   async = require('async');
+   Comments = require('./comments');
 
 
-module.exports = function(viewModel, callback){
-	async.parallel([
-						function(next) {
+module.exports = async function(viewModel){
+	var results = await Promise.all([Stats(), Images.popular(), Comments.newest()]);
+	viewModel.sidebar = {
+							stats: results[0],
+							popular: results[1],
+							comments: results[2]
+						};
+	return viewModel;
+						/*function(next) {
 							Stats(next);
 						},
 						function(next) {
@@ -23,5 +28,5 @@ module.exports = function(viewModel, callback){
 							};
 							callback(viewModel);
 						}
-					);
+					);*/
 };
