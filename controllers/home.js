@@ -10,11 +10,7 @@ module.exports = {
           viewModel.images = images;
 
           viewModel = await sidebar(viewModel);
-          console.log(viewModel);
           res.render('index', viewModel);
-          //sidebar(viewModel, function(viewModel) {
-          //    res.render('index', viewModel);
-          //}); 
        }
 };
 

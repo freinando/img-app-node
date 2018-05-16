@@ -22,45 +22,13 @@ module.exports = {
 
                   viewModel = await sidebar(viewModel);
                   res.render('image', viewModel);
-                  //sidebar(viewModel, function(viewModel) {
-                     // render the page view with its viewModel:
-                  //      res.render('image', viewModel);
-                  //});
 
                }
                else {
                      // if no image was found, simply go back to the homepage:
                     res.redirect('/');
                }
-
-                  /* function(err, image) {
-                      if (err) { throw err; }
-                      if (image) {
-                       // if the image was found, increment its views counter
-                      image.views = image.views + 1;
-                       // save the image object to the viewModel:
-                       var viewModel = getImageDetails();
-                      viewModel.image = image;
-                       // save the model (since it has been updated):
-                      image.save();
-                       // find any comments with the same image_id as the image:
-                      Models.Comment.find({ image_id: image._id},{},{ sort: {'timestamp': 1 }},
-                          function(err, comments){
-                            // save the comments collection to the viewModel:
-                            viewModel.comments = comments;
-                           // build the sidebar sending along the viewModel:
-                            sidebar(viewModel, function(viewModel) {
-                           // render the page view with its viewModel:
-                              res.render('image', viewModel);
-                            });
-                          }
-                      );
-                      } else {
-                             // if no image was found, simply go back to the homepage:
-                            res.redirect('/');
-                       }
-                   });   */       
-
+     
        },
        create: function(req, res) {
               saveImage(req, res);
@@ -86,20 +54,7 @@ async function incrementLikes(req, res){
                 res.json({ likes: image.likes });
               } 
           });
-      }/*
-        function(err, image) {
-          if (!err && image) {
-            image.likes = image.likes + 1;
-            image.save(function(err) {
-              if (err) {
-                res.json(err);
-              } else {
-                res.json({ likes: image.likes });
-              } 
-            });
-          } 
-        }
-      );*/
+      }
 }
 
 async function postComment(req, res){
@@ -116,21 +71,6 @@ async function postComment(req, res){
     }else {
         res.redirect('/');
     } 
-    /*
-      function(err, image) {
-          if (!err && image) {
-              var newComment = new Models.Comment(req.body);
-              newComment.image_id = image._id;
-              newComment.gravatar = md5(newComment.email);
-              newComment.save(function(err, comment) {
-                  if (err) { throw err; }
-                  res.redirect('/images/' + image.uniqueId + '/#' + comment._id);
-              });
-          } else {
-            res.redirect('/');
-          } 
-      }
-    );*/
 
 }
 
